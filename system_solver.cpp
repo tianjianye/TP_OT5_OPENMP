@@ -123,9 +123,8 @@ int main(int argc, char** argv) {
 			}
 			
 		}
-		#pragma omp parallel for /*if(system_size>=1024)*/
+		#pragma omp parallel for
 		for (int i = 0; i < system_size; i++) {
-		//	#pragma omp parallel for reduction (+:variable_value_t[i]) schedule(dynamic,10)
 			for (int j = 0; j < system_size; j++) {
 				variable_value_t[i] += variable_value_prev_t[j] * value_matrix[i][j];
 			}
