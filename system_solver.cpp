@@ -108,31 +108,31 @@ int main(int argc, char** argv) {
 	}
 
 	auto t1 = std::chrono::high_resolution_clock::now();
-	
-	double min, max;
-	//#pragma omp parallel for
+	double min, max,sum;
 	for (int t = 0; t<nb_step; t++) {
 		min = variable_value_prev_t[0];
 		max = variable_value_prev_t[0];
-		//#pragma omp parallel for
 		for (int i = 0; i < system_size; i++) {
 			variable_value_t[i] = 0;
+			
 			if (min > variable_value_prev_t[i]) {
 				min = variable_value_prev_t[i];
 			}
 			if (max < variable_value_prev_t[i]) {
 				max = variable_value_prev_t[i];
 			}
+			
 		}
-		#pragma omp parallel for
+		#pragma omp parallel for /*if(system_size>=1024)*/
 		for (int i = 0; i < system_size; i++) {
-			/*#pragma omp parallel for*/
+		//	#pragma omp parallel for reduction (+:variable_value_t[i]) schedule(dynamic,10)
 			for (int j = 0; j < system_size; j++) {
 				variable_value_t[i] += variable_value_prev_t[j] * value_matrix[i][j];
 			}
-			variable_value_t[i] = (double)(variable_value_t[i] - min) / (max - min);
+			
 		}
 		for (int i = 0; i < system_size; i++) {
+			variable_value_t[i] = (double)(variable_value_t[i] - min) / (max - min);
 			variable_value_prev_t[i] = variable_value_t[i];
 		}
 	}
@@ -144,14 +144,15 @@ int main(int argc, char** argv) {
 	// Step 3: Check if the system is correct
 	bool system_is_valid = true;
 	for (int i = 0; i < system_size; i++)
-		if (validation_matrix[i] != (round(variable_value_prev_t[i] * 10000000000.0) / 10000000000.0)) {
+		if ((round(validation_matrix[i] * 100000.0) / 100000.0) != (round(variable_value_prev_t[i] * 100000.0) / 100000.0)) {
 			system_is_valid = false;
-			printf("%e != %e (%e)\n", validation_matrix[i], variable_value_prev_t[i], (round(variable_value_prev_t[i] * 10000000000.0) / 10000000000.0));
+			printf("%e != %e (%e)\n", validation_matrix[i], variable_value_prev_t[i], (round(variable_value_prev_t[i] * 100000.0) / 100000.0));
 
 		}
 
-	if (system_is_valid)
-		printf("System is valid !\n");
+	if (system_is_valid){
+		//printf("System is valid !\n");
+	}
 	else {
 		printf("System is NOT valid !\n");
 		exit(-3);

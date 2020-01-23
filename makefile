@@ -1,5 +1,6 @@
 sys:
-	g++ system_solver.cpp -fopenmp -o sys.o
+	g++ -O3 system_solver.cpp -fopenmp -o sys.o
+
 clean:
 	rm -rf *.o
 
