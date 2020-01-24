@@ -123,8 +123,11 @@ int main(int argc, char** argv) {
 			}
 			
 		}
-		#pragma omp parallel for
+		//#pragma omp parallel for 
+		//#pragma omp parallel for schedule(dynamic,4)
+		#pragma omp parallel for collapse(2)		
 		for (int i = 0; i < system_size; i++) {
+
 			for (int j = 0; j < system_size; j++) {
 				variable_value_t[i] += variable_value_prev_t[j] * value_matrix[i][j];
 			}
