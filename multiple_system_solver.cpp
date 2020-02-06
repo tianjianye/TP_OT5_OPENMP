@@ -122,37 +122,48 @@ int main(int argc, char** argv) {
     
     auto t1 = std::chrono::high_resolution_clock::now();
     //TODO: Implemnt solver
-	#pragma omp parallel for
+	
+	double min, max,sum;
+	double* variable_value_t;
+    double* variable_value_prev_t;
+	double** value_matrix;
+	double* validation_matrix;
+	int system_size;
+
+	//#pragma omp parallel for
 	for(int s =0;s<nb_system;s++){
-		double min, max,sum;
-		
+		variable_value_t=systems[s].variable_value_t;
+		variable_value_prev_t=systems[s].variable_value_prev_t;
+		value_matrix=systems[s].value_matrix;
+		validation_matrix=systems[s].validation_matrix;
+		system_size=systems[s].system_size;
 		for (int t = 0; t<nb_step; t++) {
-			min = systems[s].variable_value_prev_t[0];
-			max = systems[s].variable_value_prev_t[0];
-			for (int i = 0; i < systems[s].system_size; i++) {
-				systems[s].variable_value_t[i] = 0;
+			min = variable_value_prev_t[0];
+			max = variable_value_prev_t[0];
+			for (int i = 0; i < system_size; i++) {
+				variable_value_t[i] = 0;
 				
-				if (min > systems[s].variable_value_prev_t[i]) {
-					min = systems[s].variable_value_prev_t[i];
+				if (min > variable_value_prev_t[i]) {
+					min = variable_value_prev_t[i];
 				}
-				if (max < systems[s].variable_value_prev_t[i]) {
-					max = systems[s].variable_value_prev_t[i];
+				if (max < variable_value_prev_t[i]) {
+					max = variable_value_prev_t[i];
 				}
 				
 			}
-			//#pragma omp parallel for 
+			#pragma omp parallel for 
 			//#pragma omp parallel for schedule(dynamic,4)
 			//#pragma omp parallel for collapse(2)		
-			for (int i = 0; i < systems[s].system_size; i++) {
+			for (int i = 0; i < system_size; i++) {
 
-				for (int j = 0; j < systems[s].system_size; j++) {
-					systems[s].variable_value_t[i] += systems[s].variable_value_prev_t[j] * systems[s].value_matrix[i][j];
+				for (int j = 0; j < system_size; j++) {
+					variable_value_t[i] += variable_value_prev_t[j] * value_matrix[i][j];
 				}
 				
 			}
 			for (int i = 0; i < systems[s].system_size; i++) {
-				systems[s].variable_value_t[i] = (double)(systems[s].variable_value_t[i] - min) / (max - min);
-				systems[s].variable_value_prev_t[i] = systems[s].variable_value_t[i];
+				variable_value_t[i] = (double)(variable_value_t[i] - min) / (max - min);
+				variable_value_prev_t[i] = variable_value_t[i];
 			}
 		}
 	}
