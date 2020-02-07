@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
 	double* validation_matrix;
 	int system_size;
 
-	//#pragma omp parallel for
+	#pragma omp parallel for
 	for(int s =0;s<nb_system;s++){
 		variable_value_t=systems[s].variable_value_t;
 		variable_value_prev_t=systems[s].variable_value_prev_t;
@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
 				}
 				
 			}
-			#pragma omp parallel for 
+			//#pragma omp parallel for 
 			//#pragma omp parallel for schedule(dynamic,4)
 			//#pragma omp parallel for collapse(2)		
 			for (int i = 0; i < system_size; i++) {
