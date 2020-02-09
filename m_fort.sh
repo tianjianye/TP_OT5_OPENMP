@@ -2,7 +2,7 @@
 clear
 make clean >/dev/null
 make >/dev/null
-filepath=$(<config.txt)
+filepath="../"
 sh multi_test.sh 64 100 $1 $filepath
 sh multi_test.sh 64 100 $1 $filepath
 sh multi_test.sh 64 100 $1 $filepath
